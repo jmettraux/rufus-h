@@ -70,51 +70,6 @@ module Rufus
       end
     end
 
-    #
-    # FROM H
-    #
-
-    def self.string_from_h (o, opts)
-      return get_cache(opts)[o[4..-1].to_i] if o[0, 4] == '_RH_'
-      o
-    end
-
-    def self.hash_from_h (o, opts)
-
-      return o.values.first.to_sym if o.size == 1 and o.keys.first == '_RH_:'
-
-      if s = o['_RH_S']
-        if i = o['_RH_I']
-          get_cache(opts)[i] = s
-        end
-        return s
-      end
-
-      i = o.delete('_RH_I')
-
-      h = o.inject({}) { |h, (k, v)| h[from_h(k, opts)] = from_h(v, opts); h }
-
-      get_cache(opts)[i] = h
-
-      h
-    end
-
-    def self.array_from_h (o, opts)
-
-      i = nil
-      f = o.first
-      if f.is_a?(Hash) && f.keys == [ '_RH_I' ]
-        i = f.values.first
-        o.shift
-      end
-
-      a = o.collect { |e| from_h(e, opts) }
-
-      get_cache(opts)[i] = a
-
-      a
-    end
-
     protected
 
     PRIMITIVE_TYPES = [
@@ -165,9 +120,58 @@ module Rufus
       return key if key.is_a?(String)
 
       keys = (target_h['_RH_K'] ||= {})
-      k = "_RH_K#{keys.size}"
+      k = keys.size.to_s
       keys[k] = to_h(key, opts)
-      k
+      "_RH_K#{k}"
+    end
+
+    #
+    # FROM H
+    #
+
+    def self.string_from_h (o, opts)
+      return get_cache(opts)[o[4..-1].to_i] if o[0, 4] == '_RH_'
+      o
+    end
+
+    def self.hash_from_h (o, opts)
+
+      return o.values.first.to_sym if o.size == 1 and o.keys.first == '_RH_:'
+
+      if s = o['_RH_S']
+        if i = o['_RH_I']
+          get_cache(opts)[i] = s
+        end
+        return s
+      end
+
+      keys = o.delete('_RH_K') || {}
+
+      i = o.delete('_RH_I')
+
+      get_cache(opts)[i] = o.inject({}) { |h, (k, v)|
+
+        key = if k[0, 5] == '_RH_K'
+          keys[k[5..-1]]
+        else
+          from_h(k, opts)
+        end
+
+        h[key] = from_h(v, opts)
+        h
+      }
+    end
+
+    def self.array_from_h (o, opts)
+
+      i = nil
+      f = o.first
+      if f.is_a?(Hash) && f.keys == [ '_RH_I' ]
+        i = f.values.first
+        o.shift
+      end
+
+      get_cache(opts)[i] = o.collect { |e| from_h(e, opts) }
     end
 
     #

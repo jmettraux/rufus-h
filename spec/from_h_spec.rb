@@ -29,7 +29,7 @@ describe 'from_h()' do
     Rufus::H.from_h(false).should.equal(false)
   end
 
-  it 'should turn Symbol instances into a hash' do
+  it 'should rebuild Symbols' do
 
     Rufus::H.from_h({"_RH_:"=>"s"}).should.equal(:s)
   end
@@ -45,7 +45,7 @@ describe 'from_h()' do
     )
   end
 
-  it 'should turn long strings into hashes' do
+  it 'should rebuild long strings' do
 
     Rufus::H.from_h(
       {"_RH_S"=>"_123456789_123456789_123"}
@@ -54,7 +54,7 @@ describe 'from_h()' do
     )
   end
 
-  it 'should not duplicate long strings' do
+  it 'should be ok with long strings duplicated' do
 
     Rufus::H.from_h(
       [{"_RH_S"=>"_123456789_123456789_123","_RH_I"=>0},"_RH_0"]
@@ -75,7 +75,22 @@ describe 'from_h()' do
     Rufus::H.from_h({ 'a' => 'b' }).should.equal({ 'a' => 'b' })
   end
 
-  it 'should not duplicate objects' do
+  it 'should be ok with non-string hash keys' do
+
+    Rufus::H.from_h(
+      {"_RH_K"=>{"0"=>0}, "_RH_K0"=>1}
+    ).should.equal(
+      { 0 => 1 }
+    )
+
+    Rufus::H.from_h(
+      {"_RH_K"=>{"0"=>0}, "a"=>"b", "_RH_K0"=>1}
+    ).should.equal(
+      { 'a' => 'b', 0 => 1 }
+    )
+  end
+
+  it 'should handle object references' do
 
     r = Rufus::H.from_h(
       [[{"_RH_I"=>0}, 1, 2, 3], "_RH_0"]
@@ -97,7 +112,7 @@ describe 'from_h()' do
     end
   end
 
-  it 'should encode instances' do
+  it 'should decode instances' do
 
     car = Rufus::H.from_h(
       {"brand"=>"bentley", "_RH_K"=>"Car", "owner"=>nil, "location"=>"\346\235\276\345\263\266"}

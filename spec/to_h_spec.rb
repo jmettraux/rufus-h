@@ -75,6 +75,21 @@ describe 'to_h()' do
     Rufus::H.to_h({ 'a' => 'b' }).should.equal({ 'a' => 'b' })
   end
 
+  it 'should be ok with non-string hash keys' do
+
+    Rufus::H.to_h(
+      { 0 => 1 }
+    ).should.equal(
+      {"_RH_K"=>{"0"=>0}, "_RH_K0"=>1}
+    )
+
+    Rufus::H.to_h(
+      { 'a' => 'b', 0 => 1 }
+    ).should.equal(
+      {"_RH_K"=>{"0"=>0}, "a"=>"b", "_RH_K0"=>1}
+    )
+  end
+
   it 'should not duplicate objects' do
 
     a = [ 1, 2, 3 ]
