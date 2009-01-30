@@ -1,0 +1,8 @@
+
+= CREDITS.txt rufus-h gem
+
+
+== authors
+
+John Mettraux http://jmettraux.wordpress.com
+

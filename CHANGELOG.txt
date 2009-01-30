@@ -1,0 +1,7 @@
+
+= rufus-h CHANGELOG.txt
+
+== rufus-h - 0.1.0    not yet released
+
+- initial release
+
