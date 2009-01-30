@@ -40,6 +40,8 @@ module Rufus
 
     def self.to_h (o, opts={})
 
+      raise ArgumentError.new('cannot encode classes') if o.is_a?(Class)
+
       return o if PRIMITIVE_TYPES.include?(o.class)
 
       if c = cached(opts, o)
@@ -111,52 +113,24 @@ module Rufus
       (opts[:cache] ||= {})
     end
 
+    def self.get_id (o)
+      o.is_a?(String) ? o.hash : o.object_id
+    end
+
     def self.cached (opts, o)
-      i, rep = get_cache(opts)[o.object_id]; i
+      i, rep = get_cache(opts)[get_id(o)]; i
     end
 
     def self.cache (opts, o, representation)
       c = get_cache(opts)
-      c[o.object_id] = [ c.size, representation ]
+      c[get_id(o)] = [ c.size, representation ]
       representation
     end
 
     def self.flag (opts, o)
-      i, rep = get_cache(opts)[o.object_id]
-      rep['_RH_I'] = i
+      i, rep = get_cache(opts)[get_id(o)]
+      rep.is_a?(Array) ?  rep.unshift({ '_RH_I' => i }) : rep['_RH_I'] = i
     end
   end
-end
-
-
-if __FILE__ == 'rufus-h.rb'
-
-  class MyClass
-    def initialize
-      @car = 'bentley'
-      @parents = [ 'toto', 'gerda' ]
-      @friend_count = 3
-      @opts = { 'colour' => :red, 'smell' => 'rose' }
-      @whatever = :soft
-      @foreign = '松島'
-    end
-  end
-
-  puts
-  p Rufus::H.to_h(MyClass.new)
-
-  puts
-  p Rufus::H.to_h({ 1 => '2', 3 => 4, [1, 2] => [3, 4], :a => :b })
-
-  h0 = { 'a' => 'b' }
-  h1 = { 'c' => h0, 'd' => h0 }
-  puts
-  p Rufus::H.to_h(h1)
-
-  s = "very long lllllllllllllllllllllllllllllllllllllllllllllllllll"
-  puts
-  p Rufus::H.to_h([s, s])
-
-  puts
 end
 

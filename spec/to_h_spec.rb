@@ -55,12 +55,65 @@ describe 'to_h()' do
   end
 
   it 'should not duplicate long strings' do
+    Rufus::H.to_h(
+      ['_123456789_123456789_123','_123456789_123456789_123']
+    ).should.equal(
+      [{"_RH_S"=>"_123456789_123456789_123","_RH_I"=>0},"_RH_0"]
+    )
+  end
+
+  it 'should not touch arrays' do
+
+    Rufus::H.to_h([]).should.equal([])
+    Rufus::H.to_h([ 1, 2 ]).should.equal([ 1, 2 ])
+  end
+
+  it 'should not touch hashes' do
+
+    Rufus::H.to_h({}).should.equal({})
+    Rufus::H.to_h({ 'a' => 'b' }).should.equal({ 'a' => 'b' })
+  end
+
+  it 'should not duplicate objects' do
+
+    a = [ 1, 2, 3 ]
+    h = { 'a' => 0, 'b' => 1 }
 
     Rufus::H.to_h(
-      [ '_123456789_123456789_123', '_123456789_123456789_123' ]
+      [ a, a ]
     ).should.equal(
-      [{"_RH_S"=>"_123456789_123456789_", "_RH_I"=>0}, "_RH_0"]
+      [[{"_RH_I"=>0}, 1, 2, 3], "_RH_0"]
     )
+
+    Rufus::H.to_h(
+      [ h, h ]
+    ).should.equal(
+      [{"a"=>0, "b"=>1, "_RH_I"=>0}, "_RH_0"]
+    )
+  end
+
+  class Car
+    def initialize
+      @brand = 'bentley'
+      @location = '松島'
+      @owner = nil
+    end
+  end
+
+  it 'should encode instances' do
+
+    Rufus::H.to_h(
+      Car.new
+    ).should.equal(
+      {"brand"=>"bentley", "_RH_K"=>"Car", "owner"=>nil, "location"=>"\346\235\276\345\263\266"}
+    )
+  end
+
+  it 'should not encode classes' do
+
+    lambda {
+      Rufus::H.to_h(Car)
+    }.should.raise(ArgumentError)
   end
 
 end
