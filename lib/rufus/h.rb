@@ -147,6 +147,8 @@ module Rufus
 
       keys = o.delete('_RH_K') || {}
 
+      return object_from_h(o, keys, opts) if keys.is_a?(String)
+
       i = o.delete('_RH_I')
 
       get_cache(opts)[i] = o.inject({}) { |h, (k, v)|
@@ -172,6 +174,22 @@ module Rufus
       end
 
       get_cache(opts)[i] = o.collect { |e| from_h(e, opts) }
+    end
+
+    def self.object_from_h (o, classname, opts)
+
+      o.inject(constantize(classname).allocate) { |r, (k, v)|
+        r.instance_variable_set("@#{k}", from_h(v, opts)); r
+      }
+    end
+
+    #
+    # (simpler than the one from active_support, but does it work on 1.9 ?)
+    #
+    def self.constantize (s)
+      s.split('::').inject(Object) { |c, name|
+        name == '' ? c : c.const_get(name)
+      }
     end
 
     #

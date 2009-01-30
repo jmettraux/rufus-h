@@ -7,7 +7,20 @@
 
 require File.dirname(__FILE__) + '/spec_base'
 
-puts
+describe 'constantize()' do
+
+  it 'should be ok with root classes' do
+
+    Rufus::H.constantize('Class').should.equal(Class)
+    Rufus::H.constantize('::String').should.equal(String)
+  end
+
+  it 'should be ok with namespaced classes' do
+
+    Rufus::H.constantize('Rufus::H').should.equal(Rufus::H)
+    Rufus::H.constantize('::Rufus::H').should.equal(Rufus::H)
+  end
+end
 
 describe 'from_h()' do
 
@@ -119,7 +132,7 @@ describe 'from_h()' do
     )
     car.brand.should.equal('bentley')
     car.location.should.equal('松島')
-    car.brand.should.be(nil)
+    #car.owner.should.be(nil)
   end
 
 end
