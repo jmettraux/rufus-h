@@ -34,10 +34,6 @@ module Rufus
   #
   module H
 
-    PRIMITIVE_TYPES = [
-      ::Fixnum, ::TrueClass, ::FalseClass, ::NilClass, ::Numeric, ::Float
-    ]
-
     def self.to_h (o, opts={})
 
       raise ArgumentError.new('cannot encode classes') if o.is_a?(Class)
@@ -62,31 +58,98 @@ module Rufus
       end
     end
 
-    def self.string_to_h (s, opts={})
+    def self.from_h (o, opts={})
+
+      return o if PRIMITIVE_TYPES.include?(o.class)
+
+      case o
+        when ::String then string_from_h(o, opts)
+        when ::Hash then hash_from_h(o, opts)
+        when ::Array then array_from_h(o, opts)
+        else "raise cannot read from object of class '#{o.class}'"
+      end
+    end
+
+    #
+    # FROM H
+    #
+
+    def self.string_from_h (o, opts)
+      return get_cache(opts)[o[4..-1].to_i] if o[0, 4] == '_RH_'
+      o
+    end
+
+    def self.hash_from_h (o, opts)
+
+      return o.values.first.to_sym if o.size == 1 and o.keys.first == '_RH_:'
+
+      if s = o['_RH_S']
+        if i = o['_RH_I']
+          get_cache(opts)[i] = s
+        end
+        return s
+      end
+
+      i = o.delete('_RH_I')
+
+      h = o.inject({}) { |h, (k, v)| h[from_h(k, opts)] = from_h(v, opts); h }
+
+      get_cache(opts)[i] = h
+
+      h
+    end
+
+    def self.array_from_h (o, opts)
+
+      i = nil
+      f = o.first
+      if f.is_a?(Hash) && f.keys == [ '_RH_I' ]
+        i = f.values.first
+        o.shift
+      end
+
+      a = o.collect { |e| from_h(e, opts) }
+
+      get_cache(opts)[i] = a
+
+      a
+    end
+
+    protected
+
+    PRIMITIVE_TYPES = [
+      ::Fixnum, ::TrueClass, ::FalseClass, ::NilClass, ::Numeric, ::Float
+    ]
+
+    #
+    # TO_H
+    #
+
+    def self.string_to_h (s, opts)
 
       return s if s.length < 24
 
       # cache the string if it's long...
 
-      cache(opts, s, { '_RH_S'=> s })
+      cache(opts, s, { '_RH_S' => s })
     end
 
-    def self.symbol_to_h (s, opts={})
+    def self.symbol_to_h (s, opts)
       cache(opts, s, { '_RH_:' => s.to_s })
     end
 
-    def self.hash_to_h (h, opts={})
+    def self.hash_to_h (h, opts)
       cache(
         opts,
         h,
         h.inject({}) { |r, (k, v)| r[key_to_s(k, r, opts)] = to_h(v, opts); r })
     end
 
-    def self.array_to_h (a, opts={})
+    def self.array_to_h (a, opts)
       cache(opts, a, a.collect { |e| to_h(e, opts) })
     end
 
-    def self.object_to_h (o, opts={})
+    def self.object_to_h (o, opts)
 
       h = { '_RH_K' => o.class.name }
       o.instance_variables.each do |varname|
@@ -94,8 +157,6 @@ module Rufus
       end
       cache(opts, o, h)
     end
-
-    protected
 
     def self.key_to_s (key, target_h, opts)
 
@@ -108,6 +169,10 @@ module Rufus
       keys[k] = to_h(key, opts)
       k
     end
+
+    #
+    # CACHE STUFF
+    #
 
     def self.get_cache (opts)
       (opts[:cache] ||= {})

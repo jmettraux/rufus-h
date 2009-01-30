@@ -55,6 +55,7 @@ describe 'to_h()' do
   end
 
   it 'should not duplicate long strings' do
+
     Rufus::H.to_h(
       ['_123456789_123456789_123','_123456789_123456789_123']
     ).should.equal(
