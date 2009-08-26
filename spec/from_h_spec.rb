@@ -1,3 +1,4 @@
+# encoding: utf-8
 
 #
 # Specifying rufus-h
@@ -116,7 +117,7 @@ describe 'from_h()' do
     r.first.should.be.same_as(r.last)
   end
 
-  class Car
+  class ::Car
     attr_reader :brand, :location, :owner
     def initialize
       @brand = 'bentley'

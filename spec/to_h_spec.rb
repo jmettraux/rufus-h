@@ -1,3 +1,4 @@
+# encoding: utf-8
 
 #
 # Specifying rufus-h
@@ -6,6 +7,14 @@
 #
 
 require File.dirname(__FILE__) + '/spec_base'
+
+class Car
+  def initialize
+    @brand = 'bentley'
+    @location = '松島'
+    @owner = nil
+  end
+end
 
 puts
 
@@ -106,14 +115,6 @@ describe 'to_h()' do
     ).should.equal(
       [{"a"=>0, "b"=>1, "_RH_I"=>0}, "_RH_0"]
     )
-  end
-
-  class Car
-    def initialize
-      @brand = 'bentley'
-      @location = '松島'
-      @owner = nil
-    end
   end
 
   it 'should encode instances' do

@@ -1,4 +1,3 @@
-#
 #--
 # Copyright (c) 2009, John Mettraux, jmettraux@gmail.com
 #
@@ -20,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #++
-#
 
 #
 # "assembled in Yokohama"
@@ -76,9 +74,9 @@ module Rufus
       ::Fixnum, ::TrueClass, ::FalseClass, ::NilClass, ::Numeric, ::Float
     ]
 
-    #
+    #--
     # TO_H
-    #
+    #++
 
     def self.string_to_h (s, opts)
 
@@ -134,9 +132,9 @@ module Rufus
       "_RH_K#{k}"
     end
 
-    #
+    #--
     # FROM H
-    #
+    #++
 
     def self.string_from_h (o, opts)
       return get_cache(opts)[o[4..-1].to_i] if o[0, 4] == '_RH_'
@@ -199,8 +197,7 @@ module Rufus
       }
     end
 
-    #
-    # (simpler than the one from active_support, but does it work on 1.9 ?)
+    # (simpler than the one from active_support)
     #
     def self.constantize (s)
       s.split('::').inject(Object) { |c, name|
@@ -208,9 +205,9 @@ module Rufus
       }
     end
 
-    #
+    #--
     # CACHE STUFF
-    #
+    #++
 
     def self.get_cache (opts)
       (opts[:cache] ||= {})
