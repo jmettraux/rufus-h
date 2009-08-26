@@ -3,6 +3,8 @@
 
 turning Ruby objects into JSON serialiable structures, and back.
 
+(uploaded to github for the record, I don't plan to use it in production)
+
 
 == installation
 
