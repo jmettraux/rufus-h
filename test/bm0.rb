@@ -6,9 +6,10 @@ require 'base64'
 
 require 'rubygems'
 
-#require 'json' ; puts 'json'
+require 'json' ; puts 'json'
 #require 'json/pure' ; puts 'json_pure'
-require 'active_support'; puts 'ar json'
+#require 'active_support'; puts 'ar json'
+#require 'yajl'; require 'yajl/json_gem'; puts 'yajl-ruby'
 
 $:.unshift File.dirname(__FILE__) + '/../lib'
 require 'rufus/h'
@@ -74,6 +75,8 @@ Benchmark.benchmark(' ' * 20 + Benchmark::Tms::CAPTION, 20) do |b|
   b.report('JSON load') do
     if defined?(JSON)
       5000.times { JSON.parse(j) }
+    elsif defined?(Yajl)
+      5000.times { Yajl::Parser.parse(j) }
     else
       5000.times { ActiveSupport::JSON.decode(j) }
     end
@@ -102,6 +105,8 @@ Benchmark.benchmark(' ' * 20 + Benchmark::Tms::CAPTION, 20) do |b|
   b.report('r_h + json load') do
     if defined?(JSON)
       5000.times { Rufus::H.from_h(JSON.parse(j)) }
+    elsif defined?(Yajl)
+      5000.times { Rufus::H.from_h(Yajl::Parser.parse(j)) }
     else
       5000.times { Rufus::H.from_h(ActiveSupport::JSON.decode(hj)) }
     end
