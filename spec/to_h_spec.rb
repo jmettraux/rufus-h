@@ -132,5 +132,32 @@ describe 'to_h()' do
     }.should.raise(ArgumentError)
   end
 
+  it "should not encode :except'ed instance vars" do
+
+    Rufus::H.to_h(
+      Car.new,
+      :except => 'location'
+    ).should.equal(
+      {"brand"=>"bentley", "_RH_K"=>"Car", "owner"=>nil}
+    )
+
+    Rufus::H.to_h(
+      Car.new,
+      :except => [ 'location', :owner ]
+    ).should.equal(
+      {"brand"=>"bentley", "_RH_K"=>"Car"}
+    )
+  end
+
+  it 'should :only encode some instance vars' do
+
+    Rufus::H.to_h(
+      Car.new,
+      :only => :brand
+    ).should.equal(
+      {"brand"=>"bentley", "_RH_K"=>"Car"}
+    )
+  end
+
 end
 

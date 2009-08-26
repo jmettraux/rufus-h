@@ -1,0 +1,8 @@
+
+= TODO.txt
+
+3 [ ] reading seems costly, optimize
+2 [ ] :except, :only
+1 [ ] ensure custom serialization works
+0 [ ] have a way to prevent 'serialization' of some instance vars
+

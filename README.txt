@@ -1,7 +1,7 @@
 
 = rufus-h
 
-turning Ruby object into JSON serialiable structures, and back.
+turning Ruby objects into JSON serialiable structures, and back.
 
 
 == installation
@@ -21,7 +21,7 @@ turning Ruby object into JSON serialiable structures, and back.
 
 On the rufus-ruby list[http://groups.google.com/group/rufus-ruby] :
 
-    http://groups.google.com/group/rufus-ruby
+http://groups.google.com/group/rufus-ruby
 
 
 == issue tracker
@@ -38,7 +38,7 @@ irc.freenode.net #ruote
 
 http://github.com/jmettraux/rufus-h
 
-    git clone git://github.com/jmettraux/rufus-h.git
+  git clone git://github.com/jmettraux/rufus-h.git
 
 
 == author

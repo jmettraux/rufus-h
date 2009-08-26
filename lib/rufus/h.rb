@@ -106,18 +106,27 @@ module Rufus
 
     def self.object_to_h (o, opts)
 
+      except = opts.delete(:except)
+      only = opts.delete(:only)
+      except &&= Array(except).collect { |e| e.to_s }
+      only &&= Array(only).collect { |e| e.to_s }
+
       h = { '_RH_K' => o.class.name }
+
       o.instance_variables.each do |varname|
-        h[varname[1..-1]] = to_h(o.instance_variable_get(varname), opts)
+        vn = varname[1..-1]
+        next if only && (not only.include?(vn))
+        next if except && except.include?(vn)
+        h[vn] = to_h(o.instance_variable_get(varname), opts)
       end
+
       cache(opts, o, h)
     end
 
     def self.key_to_s (key, target_h, opts)
 
-      # TODO : use cache here as well
-
       return key if key.is_a?(String)
+        # no long/short string fuzz here...
 
       keys = (target_h['_RH_K'] ||= {})
       k = keys.size.to_s
@@ -178,7 +187,14 @@ module Rufus
 
     def self.object_from_h (o, classname, opts)
 
-      o.inject(constantize(classname).allocate) { |r, (k, v)|
+      klass = constantize(classname)
+
+      if klass.respond_to?(:from_h)
+        # TODO : opts !!
+        return klass.from_h(o)
+      end
+
+      o.inject(klass.allocate) { |r, (k, v)|
         r.instance_variable_set("@#{k}", from_h(v, opts)); r
       }
     end

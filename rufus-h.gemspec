@@ -2,7 +2,9 @@
 $gemspec = Gem::Specification.new do |s|
 
   s.name = 'rufus-h'
+
   s.version = '0.1.0'
+
   s.authors = [ 'John Mettraux' ]
   s.email = 'jmettraux@gmail.com'
   s.homepage = 'http://rufus.rubyforge.org/'
@@ -20,7 +22,6 @@ $gemspec = Gem::Specification.new do |s|
   #  s.add_dependency(d)
   #end
 
-  files = [ '{lib,test}/**/*' ].map { |p| Dir[p] }.flatten
-  s.files = files.to_a
+  s.files = Dir['lib/**/*.rb'] + Dir['*.txt']
 end
 

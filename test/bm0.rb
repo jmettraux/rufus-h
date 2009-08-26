@@ -2,32 +2,42 @@
 require 'benchmark'
 
 require 'yaml'
+require 'base64'
 
 require 'rubygems'
 
-require 'json' ; puts 'json'
+#require 'json' ; puts 'json'
 #require 'json/pure' ; puts 'json_pure'
-#require 'active_support'; puts 'ar json'
+require 'active_support'; puts 'ar json'
+
+$:.unshift File.dirname(__FILE__) + '/../lib'
+require 'rufus/h'
 
 o = [
-  { :a => 1, :b => [ 2, 3 ], 1 => :c, 4 => { 'a' => 'a', 'b' => :b } },
+  { :a => 1, 'b' => [ 2, 3 ], 1 => :c, 4 => { 'a' => 'a', 'b' => :b } },
   1,
-  '日本語',
+  'nada',
   3
 ]
+#o = { 'name' => '平家', 'age' => 18, 'occupation' => 'guard' }
 
 y = YAML.dump(o)
 m = Marshal.dump(o)
 j = o.to_json
+h = Rufus::H.to_h(o)
+hj = h.to_json
+mb = Base64.encode64(m)
 
-#p y, m
-#p YAML.load(y)
-#p Marshal.load(m)
-#puts
-p y.size
-p m.size
-p j.size
+p [ :yaml, y.size ]
+p [ :marshal, m.size ]
+p [ :m_b64, mb.size ]
+p [ :json, j.size ]
+p [ :rh_j, hj.size ]
+puts j
+puts h.inspect
+puts hj
 
+puts
 
 Benchmark.benchmark(' ' * 20 + Benchmark::Tms::CAPTION, 20) do |b|
 
@@ -49,12 +59,52 @@ Benchmark.benchmark(' ' * 20 + Benchmark::Tms::CAPTION, 20) do |b|
 
   puts
 
+  b.report('Marshal dump b64') do
+    5000.times { Base64.encode64(Marshal.dump(o)) }
+  end
+  b.report('Marshal load b64') do
+    5000.times { Marshal.load(Base64.decode64(mb)) }
+  end
+
+  puts
+
   b.report('JSON dump') do
     5000.times { o.to_json }
   end
   b.report('JSON load') do
-    5000.times { JSON.parse(j) }
-    #5000.times { ActiveSupport::JSON::decode(j) }
+    if defined?(JSON)
+      5000.times { JSON.parse(j) }
+    else
+      5000.times { ActiveSupport::JSON.decode(j) }
+    end
+  end
+
+  puts
+
+  b.report('r_h dump') do
+    5000.times { Rufus::H.to_h(o) }
+  end
+  b.report('r_h load') do
+    5000.times { Rufus::H.from_h(h) }
+  end
+
+  puts
+
+  b.report('r_h inspect') do
+    5000.times { Rufus::H.to_h(o).inspect }
+  end
+
+  puts
+
+  b.report('r_h + json dump') do
+    5000.times { Rufus::H.to_h(o).to_json }
+  end
+  b.report('r_h + json load') do
+    if defined?(JSON)
+      5000.times { Rufus::H.from_h(JSON.parse(j)) }
+    else
+      5000.times { Rufus::H.from_h(ActiveSupport::JSON.decode(hj)) }
+    end
   end
 
   puts
